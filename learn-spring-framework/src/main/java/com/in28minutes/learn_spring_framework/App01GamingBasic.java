@@ -10,12 +10,12 @@ public class App01GamingBasic {
     public static void main(String[] args) {
         var marioGame = new MarioGame();
         var superContraGame = new SuperContraGame();
-        var pacManGame= new PacManGame();
+        var pacManGame= new PacManGame(); // this is object creation
 
         // var gameRunner = new GameRunner(marioGame);
         // var gameRunner = new GameRunner(superContraGame);
 
-        var gameRunner = new GameRunner(pacManGame);
+        var gameRunner = new GameRunner(pacManGame); // adding dependency to Gamming Console
 
         gameRunner.runGame();
     }
