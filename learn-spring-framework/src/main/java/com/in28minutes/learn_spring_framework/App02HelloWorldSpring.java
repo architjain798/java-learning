@@ -18,7 +18,10 @@ public class App02HelloWorldSpring {
         System.out.println(context.getBean("person"));
 
         // Custom bean name
-        System.out.println(context.getBean(Address.class));
+        // System.out.println(context.getBean(Address.class));
+        System.out.println(context.getBean("customAddress"));
+        System.out.println(context.getBean("customAddressNew"));
+        System.out.println(context.getBean("person3ParameterCall"));
 
     }
 
