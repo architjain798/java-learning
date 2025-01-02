@@ -1,4 +1,6 @@
-package com.in28minutes.learn_spring_framework;
+package com.in28minutes.learn_spring_framework.helloworld;
+
+import java.util.Arrays;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -22,6 +24,13 @@ public class App02HelloWorldSpring {
         System.out.println(context.getBean("customAddress"));
         System.out.println(context.getBean("customAddressNew"));
         System.out.println(context.getBean("person3ParameterCall"));
+
+        // 
+        // for(var x: context.getBeanDefinitionNames()) {
+        //     System.out.println(x);
+        // }
+
+        Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
 
     }
 
