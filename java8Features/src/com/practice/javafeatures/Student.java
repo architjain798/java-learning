@@ -1,6 +1,7 @@
 package com.practice.javafeatures;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class Student implements Test {
 
@@ -18,6 +19,12 @@ public class Student implements Test {
         };
         consumer.accept("Hello");
 
+        Predicate <Integer> predicate = (Integer num) -> {
+            if(num % 2 == 0) return true;
+
+            return false;
+        };
+        System.out.println(predicate.test(5));
 
     }
 
