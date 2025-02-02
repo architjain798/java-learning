@@ -1,10 +1,13 @@
 package com.in28minutes.learn_spring_framework.game;
 
-public class PacManGame implements GamingConsole{
+import org.springframework.stereotype.Component;
+
+@Component
+public class PacManGame implements GamingConsole {
 
     @Override
     public void up() {
-       System.out.println("up for pacman");
+        System.out.println("up for pacman");
     }
 
     @Override
