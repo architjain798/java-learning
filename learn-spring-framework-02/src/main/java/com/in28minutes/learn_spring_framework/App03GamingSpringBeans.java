@@ -2,7 +2,6 @@ package com.in28minutes.learn_spring_framework;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import com.in28minutes.learn_spring_framework.game.GameRunner;
@@ -11,24 +10,12 @@ import com.in28minutes.learn_spring_framework.game.PacManGame;
 
 
 @Configuration
-class GammingConfiguration {
+public class App03GamingSpringBeans {
 
     @Bean
     GamingConsole game() {
         return new PacManGame();
     }
-
-    @Bean
-    GameRunner gameRunner(GamingConsole game) {
-        return new GameRunner(game);
-    }
-
-}
-
-
-@Configuration
-@ComponentScan("com.in28minutes.learn_spring_framework.game") 
-public class App03GamingSpringBeans {
 
     @Bean
     GameRunner gameRunner(GamingConsole game) {
