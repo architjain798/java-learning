@@ -1,8 +1,10 @@
 package com.in28minutes.learn_spring_framework.game;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 @Component
+@ComponentScan("")
 public class PacManGame implements GamingConsole {
 
     @Override
