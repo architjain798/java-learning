@@ -7,6 +7,24 @@ import org.springframework.context.annotation.Configuration;
 
 import com.in28minutes.learn_spring_framework.game.GameRunner;
 import com.in28minutes.learn_spring_framework.game.GamingConsole;
+import com.in28minutes.learn_spring_framework.game.PacManGame;
+
+
+@Configuration
+class GammingConfiguration {
+
+    @Bean
+    GamingConsole game() {
+        return new PacManGame();
+    }
+
+    @Bean
+    GameRunner gameRunner(GamingConsole game) {
+        return new GameRunner(game);
+    }
+
+}
+
 
 @Configuration
 @ComponentScan("com.in28minutes.learn_spring_framework.game") 
@@ -23,8 +41,6 @@ public class App03GamingSpringBeans {
              context.getBean(GamingConsole.class).up();
 
              context.getBean(GameRunner.class).runGame();
-
-            // Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
 
         }
     }
