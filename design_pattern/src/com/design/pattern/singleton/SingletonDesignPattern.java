@@ -1,7 +1,8 @@
 package com.design.pattern.singleton;
 
 public class SingletonDesignPattern {
-    static SingletonDesignPattern obj = new SingletonDesignPattern();;
+    // The object will be loaded at class loading only even without calling the get instance
+    static SingletonDesignPattern obj = new SingletonDesignPattern();
     
     private SingletonDesignPattern(){}
 
