@@ -1,6 +1,8 @@
 package com.design.pattern.singleton;
 
-public class SingletonDesignPattern {
+import java.io.Serializable;
+
+public class SingletonDesignPattern implements Serializable {
     static SingletonDesignPattern obj ;
     
     private SingletonDesignPattern(){}
