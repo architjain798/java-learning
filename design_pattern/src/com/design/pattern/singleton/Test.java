@@ -2,13 +2,12 @@ package com.design.pattern.singleton;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class Test {
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException, CloneNotSupportedException {
+    public static void main(String[] args) throws Exception {
         SingletonDesignPattern obj1 = SingletonDesignPattern.getInstance();
         SingletonDesignPattern obj2 = SingletonDesignPattern.getInstance();
 
