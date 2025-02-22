@@ -2,7 +2,7 @@ package com.design.pattern.singleton;
 
 import java.io.Serializable;
 
-public class SingletonDesignPattern implements Serializable {
+public class SingletonDesignPattern implements Serializable,Cloneable {
     static SingletonDesignPattern obj ;
     
     private SingletonDesignPattern(){}
@@ -11,6 +11,18 @@ public class SingletonDesignPattern implements Serializable {
         if(obj == null){
             obj = new SingletonDesignPattern();
         }
+        return obj;
+    }
+
+    // This method is called during deserialization
+    Object readResolve() {
+        return obj; // Return the existing instance
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        // TODO Auto-generated method stub
+        // return super.clone(); // if we are not replacing then singleton will break
         return obj;
     }
 }
@@ -35,3 +47,10 @@ public class SingletonDesignPattern implements Serializable {
 
 // DB Connection
 // get data from property files
+
+// Serilization is done for an object
+// Compilation is done for a class
+
+// Example for Singleton class in java -> Runtime 
+// Runtime r = Runtime.getRuntime();
+
