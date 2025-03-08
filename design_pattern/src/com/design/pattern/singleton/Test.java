@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
 
 public class Test {
 
@@ -30,6 +31,13 @@ public class Test {
         // Breaking the singletion using Cloning
         SingletonDesignPattern obj3 = (SingletonDesignPattern)obj2.clone();
         System.out.println(obj3.hashCode());
+
+
+        // Using Reflection API
+        Constructor<SingletonDesignPattern> tempObj = SingletonDesignPattern.class.getDeclaredConstructor();
+        tempObj.setAccessible(true);
+        SingletonDesignPattern obj4 = tempObj.newInstance();
+        System.out.println(obj4.hashCode());
 
 
     }

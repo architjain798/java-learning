@@ -9,6 +9,7 @@ public class SingletonDesignPattern implements Serializable, Cloneable {
     private SingletonDesignPattern() throws Exception {
         // to prevent it from reflection
         if (obj != null) {
+            System.out.println("Object is trying to create using reflection");
             throw new Exception("Object can be created");
         }
     }
