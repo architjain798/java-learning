@@ -1,4 +1,4 @@
-package com.design.pattern.factory;
+package com.example.designpatterns.creational.factory;
 
 // Abstract product interfaces
 interface Button {

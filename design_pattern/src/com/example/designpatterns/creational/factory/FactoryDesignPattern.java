@@ -1,4 +1,4 @@
-package com.design.pattern.factory;
+package com.example.designpatterns.creational.factory;
 
 // Product interface
 interface Document {
@@ -78,7 +78,7 @@ public class FactoryDesignPattern {
         DocumentCreator pdfCreator = new PDFDocumentCreator();
         pdfCreator.editDocument();
         
-        // System.out.println("-------------------");
+        System.out.println("-------------------");
         
         // DocumentCreator wordCreator = new WordDocumentCreator();
         // wordCreator.editDocument();

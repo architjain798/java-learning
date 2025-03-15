@@ -1,4 +1,4 @@
-package com.design.pattern.singleton;
+package com.example.designpatterns.creational.singleton;
 
 public class Thread1 extends Thread{
     // Constructor to set the thread name

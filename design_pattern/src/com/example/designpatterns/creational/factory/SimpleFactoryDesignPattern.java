@@ -1,4 +1,4 @@
-package com.design.pattern.factory;
+package com.example.designpatterns.creational.factory;
 
 public class SimpleFactoryDesignPattern {
 
@@ -6,6 +6,9 @@ public class SimpleFactoryDesignPattern {
         Factory f = new Factory();
         Notification n = f.createNotification("sms");
         n.notifi();
+
+        Notification n2 = f.createNotification("email");
+        n2.notifi();
     }
 }
 
