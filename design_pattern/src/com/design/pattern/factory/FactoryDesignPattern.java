@@ -1,4 +1,4 @@
-package com.design.pattern.singleton.factory;
+package com.design.pattern.factory;
 
 // Product interface
 interface Document {
@@ -73,7 +73,7 @@ class WordDocumentCreator extends DocumentCreator {
 }
 
 // Client code
-public class FactoryDesginPattern {
+public class FactoryDesignPattern {
     public static void main(String[] args) {
         DocumentCreator pdfCreator = new PDFDocumentCreator();
         pdfCreator.editDocument();

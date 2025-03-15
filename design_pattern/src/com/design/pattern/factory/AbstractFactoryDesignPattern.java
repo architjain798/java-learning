@@ -1,4 +1,4 @@
-package com.design.pattern.singleton.factory;
+package com.design.pattern.factory;
 
 // Abstract product interfaces
 interface Button {
