@@ -1,6 +1,6 @@
-package com.design.pattern.singleton;
+package com.design.pattern.singleton.factory;
 
-public class FactoryDesignPattern {
+public class SimpleFactoryDesignPattern {
 
     public static void main(String[] args) {
         Factory f = new Factory();
