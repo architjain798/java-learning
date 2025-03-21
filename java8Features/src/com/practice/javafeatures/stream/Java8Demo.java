@@ -91,7 +91,12 @@ public class Java8Demo {
         // Constructor reference
         List<String> names = Arrays.asList("A", "B", "C");
         List<MobilePhone> mobilePhoneList = names.stream().map(MobilePhone::new).collect(Collectors.toList());
-
+        Consumer<List<MobilePhone>> mobileList = (ls) -> {
+            for (MobilePhone x:ls){
+                System.out.println(x.getName());
+            }
+        };
+        mobileList.accept(mobilePhoneList); 
 
     }
 
@@ -103,6 +108,10 @@ class MobilePhone{
 
     public MobilePhone(String name) {
         this.name = name;
+    }
+
+    public String getName(){
+        return name;
     }
 }
 

@@ -1,3 +1,4 @@
+package com.example.designpatterns.creational.singleton;
 public class Student {
     String name;
     int num;
