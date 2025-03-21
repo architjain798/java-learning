@@ -22,8 +22,8 @@ public class ChainOfRespATMExample {
         while(true){
             System.out.println("please enter amount to be withdrawn");
             Scanner sc = new Scanner(System.in);
-            if(sc.nextInt() != 0){
-                int amount = sc.nextInt();
+            int amount = sc.nextInt();
+            if(amount != 0){
                 if(amount % 100 != 0){
                     System.out.println("Please enter multiple of hundred");
                     return;
@@ -67,7 +67,7 @@ class Notes2000Rack implements DispenceChain {
     @Override
     public void dispence(Currency currency) {
         int noOf2000Notes = currency.getAmount() / 2000;
-        System.out.println("Dispencing " + noOf2000Notes + "2000 notes");
+        System.out.println("Dispencing--" + noOf2000Notes + "--2000 notes");
 
         int remainder = currency.getAmount() % 2000;
         if (remainder != 0) {
@@ -90,7 +90,7 @@ class Notes100Rack implements DispenceChain {
     @Override
     public void dispence(Currency currency) {
         int noOf1000Notes = currency.getAmount() / 100;
-        System.out.println("Dispencing " + noOf1000Notes + "100 notes");
+        System.out.println("Dispencing--" + noOf1000Notes + "--100 notes");
 
         int remainder = currency.getAmount() % 100;
         if (remainder != 0) {
@@ -113,7 +113,7 @@ class Notes500Rack implements DispenceChain {
     @Override
     public void dispence(Currency currency) {
         int noOf500Notes = currency.getAmount() / 500;
-        System.out.println("Dispencing " + noOf500Notes + "500 notes");
+        System.out.println("Dispencing--" + noOf500Notes + "--500 notes");
 
         int remainder = currency.getAmount() % 500;
         if (remainder != 0) {
