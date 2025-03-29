@@ -63,6 +63,10 @@ class TestBuilder {
 
         User u2 = new User.UserBuilder("ajay", "jain").mobile(9878).build();
         System.out.println(u2);
+
+
+        StringBuilder builder= new StringBuilder("temp");
+        String data = builder.append("friend").append("none").toString();
     }
 }
 
