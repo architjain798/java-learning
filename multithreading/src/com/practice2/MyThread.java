@@ -55,5 +55,12 @@ class PracticeJoin {
 // · Terminated: A thread is in this state when it has
 // finished executing.
 // jo thread jisko join krta hai usko rukna pad jaata hai
+
+/* 
+JOIN METHOD
+*/
 // hamre mein t1 ne main ko join kr a
 // matlab main ko rukna pad gya
+
+// when to use extends Thread vs Runnable interaface
+// sometime we have to extend the class make thread as well then in that case we need to implement the Runnabel interafe
