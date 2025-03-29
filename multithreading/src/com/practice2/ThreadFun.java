@@ -13,10 +13,13 @@ class MyThreadFun extends Thread {
                 // Thread.sleep(1000);
                 System.out.println(Thread.currentThread().getName() + "--" + i + " Priority " + Thread.currentThread().getPriority());
             }
+            while (true) {
+                System.out.println(Thread.currentThread().getName() + "--" + " Priority " + Thread.currentThread().getPriority());
+            }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
     }
+
 }
 
 public class ThreadFun {
@@ -24,14 +27,14 @@ public class ThreadFun {
     public static void main(String[] args) throws InterruptedException {
         MyThreadFun t1 = new MyThreadFun("t1");
         MyThreadFun t2 = new MyThreadFun("t2");
-        
+
         t1.setPriority(Thread.MAX_PRIORITY);
         t1.setDaemon(true);
-        t2.setPriority(5);
+        // t2.setPriority(5);
 
         t1.start();
         // t1.join();
-        t2.start();
+        // t2.start();
 
         // t1.interrupt();
     }
