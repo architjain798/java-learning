@@ -1,10 +1,17 @@
 package com.locks;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class BankAccount {
 
     private int balance = 100;
 
-    public void wihdraw(int amount) {
+    private final Lock lock = new ReentrantLock();
+
+    public synchronized void wihdraw(int amount) {
+
         System.out.println(Thread.currentThread().getName() + " attempting to withdraw " + amount);
 
         if (amount <= balance) {
@@ -12,13 +19,39 @@ public class BankAccount {
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                System.out.println(e);
             }
             balance -= amount;
             System.out.println(Thread.currentThread().getName() + " Completed withdrawal ");
         } else {
             System.out.println(Thread.currentThread().getName() + " insufficient balance ");
+        }
+    }
+
+    public void withdrawalUsingLock(int amount) {
+        System.out.println(Thread.currentThread().getName() + " attempting to withdraw " + amount);
+        try {
+            if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
+                if (balance >= amount) {
+                    try {
+                        System.out.println(Thread.currentThread().getName() + " proceding with withdrawal ");
+                        Thread.sleep(3000);
+                        balance -= amount;
+                        System.out.println(Thread.currentThread().getName() + " Completed withdrawal ");
+                    } catch (Exception e) {
+                    } finally {
+                        lock.unlock();
+                    }
+
+                } else {
+                    System.out.println(Thread.currentThread().getName() + " insufficient balance ");
+                }
+            }
+            else{
+                System.out.println(Thread.currentThread().getName() + " Could not acquire the lock, will try later ");
+            }
+
+        } catch (Exception e) {
         }
     }
 }
@@ -31,7 +64,8 @@ class Customer {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                bankAccount.wihdraw(50);
+                // bankAccount.wihdraw(50);
+                bankAccount.withdrawalUsingLock(50);
             }
         };
 
