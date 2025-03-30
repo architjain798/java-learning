@@ -18,8 +18,8 @@ public class BankAccount {
             System.out.println(Thread.currentThread().getName() + " proceding with withdrawal ");
             try {
                 Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                System.out.println(e);
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
             }
             balance -= amount;
             System.out.println(Thread.currentThread().getName() + " Completed withdrawal ");
@@ -38,7 +38,7 @@ public class BankAccount {
                         Thread.sleep(3000);
                         balance -= amount;
                         System.out.println(Thread.currentThread().getName() + " Completed withdrawal ");
-                    } catch (Exception e) {
+                    } catch (InterruptedException e) {
                     } finally {
                         lock.unlock();
                     }
@@ -52,6 +52,7 @@ public class BankAccount {
             }
 
         } catch (Exception e) {
+            Thread.currentThread().interrupt();
         }
     }
 }
