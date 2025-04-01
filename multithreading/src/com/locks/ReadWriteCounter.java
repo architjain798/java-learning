@@ -71,3 +71,15 @@ public class ReadWriteCounter {
 // write lock read krne ka wait krega
 // vo lock release krega
 // tab ki write hoga vrna read aur write inconsisnent ho jaenge
+
+// Deadlocks typically occur when four conditions are met
+// simultaneously:
+// 1. Mutual Exclusion: Only one thread can access a resource at a
+// time.
+// 2. Hold and Wait: A thread holding at least one resource is waiting
+// to acquire additional resources held by other threads.
+// 3. No Preemption: Resources cannot be forcibly taken from
+// threads holding them.
+// 4. Circular Wait: A set of threads is waiting for each other in a
+// circular chain.
+
