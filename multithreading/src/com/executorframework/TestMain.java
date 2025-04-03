@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class TestMain {
 
@@ -103,14 +104,32 @@ class ExecutorDemoNew {
 
 class ExecutorDemo3 {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
-            Callable<Integer> callable1 = () -> 1;
-            Callable<Integer> callable2 = () -> 2;
-            Callable<Integer> callable3 = () -> 3;
+            Callable<Integer> callable1 = () -> {
+                Thread.sleep(1000);
+                System.out.println("Task 1");
+                return 1;
+            };
+            Callable<Integer> callable2 = () -> {
+                Thread.sleep(1000);
+                System.out.println("Task 2");
+                return 2;
+            };
+            Callable<Integer> callable3 = () -> {
+                Thread.sleep(1000);
+                System.out.println("Task 3");
+                return 3;
+            };
 
             List<Callable<Integer>> ls = Arrays.asList(callable1, callable2, callable3);
-            executorService.invokeAll(ls);
+            List<Future<Integer>> futures = executorService.invokeAll(ls,1,TimeUnit.SECONDS);
+
+            for(Future<Integer> f:futures){
+                System.out.println(f.get());
+            }
+
+            executorService.shutdown();
         }
     }
 }
