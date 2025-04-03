@@ -1,7 +1,9 @@
 package com.executorframework;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class TestMain {
 
@@ -41,7 +43,7 @@ public class TestMain {
     }
 }
 
- class ExecutorServiceDemo {
+class ExecutorServiceDemo {
 
     public static void main(String[] args) {
         ExecutorService executor = null;
@@ -49,17 +51,30 @@ public class TestMain {
             executor = Executors.newFixedThreadPool(10);
             for (int i = 1; i <= 10; i++) {
                 int number = i;
-                executor.submit(()->{
+                executor.submit(() -> {
                     long result = TestMain.factorial(number);
                     System.out.println("Factorial of " + number + " -> " + result);
                 });
-            } 
+            }
         } finally {
             if (executor != null) {
                 executor.shutdown();
             }
         }
-        
+
     }
 
+}
+
+class ExecutorDemo {
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        try {
+            Future<Integer> future = executorService.submit(() -> 42);
+            System.out.println(future.get());
+        } finally {
+            executorService.shutdown();
+        }
+    }
 }
