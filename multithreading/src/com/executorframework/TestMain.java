@@ -73,8 +73,25 @@ class ExecutorDemo {
         try {
             Future<Integer> future = executorService.submit(() -> 42);
             System.out.println(future.get());
+
+            executorService.shutdown();
+            Future<String> submit = executorService.submit(() -> System.out.println("Hello"), "successfull");
         } finally {
             executorService.shutdown();
+        }
+    }
+}
+
+class ExecutorDemoNew {
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
+            Future<Integer> submit = executorService.submit(() -> 1 + 2);
+            Integer i = submit.get();
+            System.out.println("sum is " + i);
+            System.out.println(executorService.isShutdown());
+            Thread.sleep(2000);
+            System.out.println(executorService.isTerminated());
         }
     }
 }
