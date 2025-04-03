@@ -3,6 +3,7 @@ package com.executorframework;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,7 +80,7 @@ class ExecutorDemo {
             System.out.println(future.get());
 
             executorService.shutdown();
-            Future<String> submit = executorService.submit(() -> System.out.println("Hello"), "successfull");
+            executorService.submit(() -> System.out.println("Hello"), "successful");
         } finally {
             executorService.shutdown();
         }
@@ -104,8 +105,8 @@ class ExecutorDemoNew {
 
 class ExecutorDemo3 {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
-        try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
+    public static void main(String[] args) {
+        try (ExecutorService executorService = Executors.newFixedThreadPool(3)) {
             Callable<Integer> callable1 = () -> {
                 Thread.sleep(1000);
                 System.out.println("Task 1");
@@ -123,13 +124,29 @@ class ExecutorDemo3 {
             };
 
             List<Callable<Integer>> ls = Arrays.asList(callable1, callable2, callable3);
-            List<Future<Integer>> futures = executorService.invokeAll(ls,1,TimeUnit.SECONDS);
+            List<Future<Integer>> futures = null;
+            try {
+                futures = executorService.invokeAll(ls, 1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
+            }
 
-            for(Future<Integer> f:futures){
-                System.out.println(f.get());
+            if (futures != null) {
+                for (Future<Integer> f : futures) {
+                    try {
+                        System.out.println(f.get());
+                    } catch (CancellationException e) {
+                        System.out.println(e);
+                    } catch (InterruptedException e) {
+                        System.out.println(e);
+                    }
+                }
             }
 
             executorService.shutdown();
+            System.out.println("Hello World");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 }
