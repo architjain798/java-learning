@@ -1,5 +1,8 @@
 package com.executorframework;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,13 +88,29 @@ class ExecutorDemo {
 class ExecutorDemoNew {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        Future<Integer> submit = executorService.submit(() -> 1 + 2);
+        Integer i = submit.get();
+        System.out.println("sum is " + i);
+        executorService.shutdown();
+        System.out.println(executorService.isShutdown());
+        Thread.sleep(2000);
+        System.out.println(executorService.isTerminated());
+
+    }
+
+}
+
+class ExecutorDemo3 {
+
+    public static void main(String[] args) throws InterruptedException {
         try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
-            Future<Integer> submit = executorService.submit(() -> 1 + 2);
-            Integer i = submit.get();
-            System.out.println("sum is " + i);
-            System.out.println(executorService.isShutdown());
-            Thread.sleep(2000);
-            System.out.println(executorService.isTerminated());
+            Callable<Integer> callable1 = () -> 1;
+            Callable<Integer> callable2 = () -> 2;
+            Callable<Integer> callable3 = () -> 3;
+
+            List<Callable<Integer>> ls = Arrays.asList(callable1, callable2, callable3);
+            executorService.invokeAll(ls);
         }
     }
 }
