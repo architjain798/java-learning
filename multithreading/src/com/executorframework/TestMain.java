@@ -1,5 +1,8 @@
 package com.executorframework;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class TestMain {
 
     public static void main(String[] args) {
@@ -8,15 +11,15 @@ public class TestMain {
         Thread[] threads = new Thread[10];
 
         for (int i = 1; i <= 10; i++) {
-            int number  = i;
-            threads[i-1] = new Thread(() -> {
+            int number = i;
+            threads[i - 1] = new Thread(() -> {
                 long result = factorial(number);
-                System.out.println("Factorial of "+number+" -> "+result);
+                System.out.println("Factorial of " + number + " -> " + result);
             });
-            threads[i-1].start();
+            threads[i - 1].start();
         }
 
-        for(var thread : threads){
+        for (var thread : threads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -36,4 +39,27 @@ public class TestMain {
 
         return n * factorial(n - 1);
     }
+}
+
+ class ExecutorServiceDemo {
+
+    public static void main(String[] args) {
+        ExecutorService executor = null;
+        try {
+            executor = Executors.newFixedThreadPool(10);
+            for (int i = 1; i <= 10; i++) {
+                int number = i;
+                executor.submit(()->{
+                    long result = TestMain.factorial(number);
+                    System.out.println("Factorial of " + number + " -> " + result);
+                });
+            } 
+        } finally {
+            if (executor != null) {
+                executor.shutdown();
+            }
+        }
+        
+    }
+
 }
