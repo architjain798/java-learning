@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class TestMain {
@@ -126,7 +127,10 @@ class ExecutorDemo3 {
             List<Callable<Integer>> ls = Arrays.asList(callable1, callable2, callable3);
             List<Future<Integer>> futures = null;
             try {
-                futures = executorService.invokeAll(ls, 1, TimeUnit.SECONDS);
+                // futures = executorService.invokeAll(ls, 1, TimeUnit.SECONDS);
+                futures = executorService.invokeAll(ls);
+                // Integer ifutures = executorService.invokeAny(ls);
+                // System.out.println(ifutures);
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
             }
@@ -148,5 +152,22 @@ class ExecutorDemo3 {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+}
+
+class ScheduleExecutorServiceDemo {
+
+    public static void main(String[] args) {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        // scheduler.schedule(()->System.out.println("task executed after 5 seconds delay"), 5, TimeUnit.SECONDS);
+        // scheduler.shutdown();
+
+        scheduler.scheduleAtFixedRate(() -> System.out.println("task executed after every 5 seconds! "), 5, 5, TimeUnit.SECONDS);
+        scheduler.schedule(() -> {
+            System.out.println("Initiating shutdown");
+            scheduler.shutdown();
+        }, 20, TimeUnit.SECONDS);
+        
+
     }
 }
