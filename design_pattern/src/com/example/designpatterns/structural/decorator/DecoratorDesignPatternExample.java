@@ -1,4 +1,4 @@
-package com.example.designpatterns.creational.decorator;
+package com.example.designpatterns.structural.decorator;
 
 public class DecoratorDesignPatternExample {
 
@@ -65,12 +65,12 @@ class AccidentalBenefit extends PolicyDecorator {
 
     @Override
     public int getPremium() {
-        return this.basicPlan.getPremium() + 400;
+        return super.getPremium() + 400;
     }
 
     @Override
     public String policyDetails() {
-        return this.basicPlan.policyDetails() + "/ Extra cover for Accidental Cover /";
+        return super.policyDetails() + "/ Extra cover for Accidental Cover /";
     }
 
 }
@@ -83,12 +83,12 @@ class CriticalIllnessBenefit extends PolicyDecorator {
 
     @Override
     public int getPremium() {
-        return this.basicPlan.getPremium() + 500;
+        return super.getPremium() + 500;
     }
 
     @Override
     public String policyDetails() {
-        return this.basicPlan.policyDetails() + "/ Extra cover for Critical Illness Benefit Cover /";
+        return super.policyDetails() + "/ Extra cover for Critical Illness Benefit Cover /";
     }
 
 }
