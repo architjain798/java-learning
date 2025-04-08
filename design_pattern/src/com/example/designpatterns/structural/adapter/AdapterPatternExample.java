@@ -1,105 +1,85 @@
 package com.example.designpatterns.structural.adapter;
 
 public class AdapterPatternExample {
-    AshokIt as = new AshokIt();
-    as.setPayemnt("UPI");
-    as.setDetails("45645@axis");
+    public static void main(String[] args) {
+        AshokIt ashok = new AshokIt();
+        ashok.setPayment("UPI");
+        ashok.setDetails("45645@axis");
 
-    Paytm obj = =PaymentAdapter.convertBillDeskToPaytm(as);
-    
+        Paytm paytm = new PaymentAdapter(ashok); // Adapter used here
 
+        System.out.println("Payment Type: " + paytm.getTypeOfPaymentType());
+        System.out.println("Payment Details: " + paytm.getDetails());
+    }
 }
 
-interface BillDesk {
-
-    void setPayemnt(String paymentType);
-
-    String getPayment();
-
-    void setDetails(String data);
-
-    String getDetails();
-}
-
+// ✅ Target interface (what the client expects)
 interface Paytm {
-
     void setTypeOfPayemnt(String paymentType);
-
     String getTypeOfPaymentType();
-
     void providesDetails(String data);
-
     String getDetails();
 }
 
-class PaymentAdapter implements Paytm {
-
-    static BillDesk billDesk = null;
-
-    PaymentAdapter(BillDesk billDesk) {
-        this.billDesk = billDesk;
-    }
-
-    static Paytm convertBillDeskToPaytm(BillDesk b) {
-        // Paytm p = new Paytm();
-
-        p.setTypeOfPayemnt(b.getPayment());
-        p.providesDetails(b.getDetails());
-        return p;
-    }
-
-    @Override
-    public void setTypeOfPayemnt(String paymentType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setTypeOfPayemnt'");
-    }
-
-    @Override
-    public String getTypeOfPaymentType() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTypeOfPaymentType'");
-    }
-
-    @Override
-    public void providesDetails(String data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'providesDetails'");
-    }
-
-    @Override
-    public String getDetails() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDetails'");
-    }
-
+// ✅ Adaptee interface (incompatible third-party system)
+interface BillDesk {
+    void setPayment(String paymentType);
+    String getPayment();
+    void setDetails(String data);
+    String getDetails();
 }
 
+// ✅ Concrete implementation of Adaptee
 class AshokIt implements BillDesk {
-
-    String paymentType = null;
-    String data = null;
+    private String paymentType;
+    private String data;
 
     @Override
-    public void setPayemnt(String paymentType) {
+    public void setPayment(String paymentType) {
         this.paymentType = paymentType;
     }
 
     @Override
     public String getPayment() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPayment'");
+        return this.paymentType;
     }
 
     @Override
     public void setDetails(String data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setDetails'");
+        this.data = data;
     }
 
     @Override
     public String getDetails() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDetails'");
+        return this.data;
+    }
+}
+
+// ✅ Adapter: Converts BillDesk to Paytm
+class PaymentAdapter implements Paytm {
+    private final BillDesk billDesk;
+
+    public PaymentAdapter(BillDesk billDesk) {
+        this.billDesk = billDesk;
     }
 
+    @Override
+    public void setTypeOfPayemnt(String paymentType) {
+        billDesk.setPayment(paymentType);
+    }
+
+    @Override
+    public String getTypeOfPaymentType() {
+        return billDesk.getPayment();
+    }
+
+    @Override
+    public void providesDetails(String data) {
+        billDesk.setDetails(data);
+    }
+
+    @Override
+    public String getDetails() {
+        return billDesk.getDetails();
+    }
 }
