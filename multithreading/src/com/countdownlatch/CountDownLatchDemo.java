@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class CountDownLatchDemo {
 
@@ -35,6 +36,22 @@ public class CountDownLatchDemo {
     }
 }
 
+class CountDownLatchNewDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        int numberOfServices = 3;
+
+        CountDownLatch latch = new CountDownLatch(numberOfServices);
+        for (int i = 0; i < numberOfServices; i++) {
+            new Thread(new DependentNewService(latch)).start();
+        }
+        // latch.await();
+        latch.await(5,TimeUnit.SECONDS);
+        System.out.println("Main");
+
+    }
+}
+
 class DependentService implements Callable<String> {
 
     private final CountDownLatch latch;
@@ -53,6 +70,30 @@ class DependentService implements Callable<String> {
         }
 
         return "ok";
+    }
+
+}
+
+class DependentNewService implements Runnable {
+
+    private final CountDownLatch countDownLatch;
+
+    public DependentNewService(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
+    }
+
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(6000);
+            System.out.println(Thread.currentThread().getName() + " service started");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            countDownLatch.countDown();
+        }
+
     }
 
 }
