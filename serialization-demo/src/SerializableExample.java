@@ -6,16 +6,20 @@ import java.nio.file.Paths;
 
 public class SerializableExample {
     public static void main(String[] args) throws IOException {
-        Employee e1 = new Employee(1, "archit", 100);
+        Employee e1 = new Employee(1, "archit", 100,"archit123","pwd123");
+        Employee e2 = new Employee(2, "ajay", 200,"ajay987","pwdd987");
+
+        Employee.counter = 10;
+
 
         Path currentDirPath = Paths.get("").toAbsolutePath();
         Path configPath = currentDirPath.resolve("src").resolve("sample.txt");
-        String currentDir2 = configPath.toString();
+        String filePath = configPath.toString();
 
-        try (FileOutputStream fos = new FileOutputStream(currentDir2);
+        try (FileOutputStream fos = new FileOutputStream(filePath);
              ObjectOutputStream b = new ObjectOutputStream(fos)) {
-            b.writeObject(e1);
-            System.out.println("Current directory: " + currentDir2);
+            b.writeObject(e2);
+            System.out.println("Current directory: " + filePath);
         }
     }
 }
