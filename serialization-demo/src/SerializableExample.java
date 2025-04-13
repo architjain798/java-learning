@@ -12,9 +12,10 @@ public class SerializableExample {
         Path configPath = currentDirPath.resolve("src").resolve("sample.txt");
         String currentDir2 = configPath.toString();
 
-        FileOutputStream fos = new FileOutputStream(currentDir2);
-        ObjectOutputStream b = new ObjectOutputStream(fos);
-        b.writeObject(e1);
-        System.out.println("Current directory: " + currentDir2);
+        try (FileOutputStream fos = new FileOutputStream(currentDir2);
+             ObjectOutputStream b = new ObjectOutputStream(fos)) {
+            b.writeObject(e1);
+            System.out.println("Current directory: " + currentDir2);
+        }
     }
 }
