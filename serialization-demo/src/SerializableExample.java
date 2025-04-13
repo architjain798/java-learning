@@ -6,8 +6,10 @@ import java.nio.file.Paths;
 
 public class SerializableExample {
     public static void main(String[] args) throws IOException {
-        Employee e1 = new Employee(1, "archit", 100,"archit123","pwd123");
-        Employee e2 = new Employee(2, "ajay", 200,"ajay987","pwdd987");
+        Address a1 = new Address("delhi", "india");
+
+        Employee e1 = new Employee(1, "archit", 100,"archit123","pwd123",a1);
+        Employee e2 = new Employee(2, "ajay", 200,"ajay987","pwdd987",a1);
 
         Employee.counter = 10;
 

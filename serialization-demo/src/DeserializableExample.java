@@ -22,6 +22,7 @@ public class DeserializableExample {
             System.out.println(e.getEmpUserName());
             // The empUserPwd field is transient and will not be serialized, so it will always print null.
             System.out.println(e.getEmpUserPwd());
+            System.out.println(e.getAddress().getCity());
             System.out.println(e.counter);
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();

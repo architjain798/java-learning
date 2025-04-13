@@ -13,12 +13,15 @@ public class Employee implements Serializable {
     String empUserName;
     transient String empUserPwd;
 
-    public Employee(int empId, String empName, double empSalary, String empUserName, String empUserPwd) {
+    Address address;
+
+    public Employee(int empId, String empName, double empSalary, String empUserName, String empUserPwd,Address address) {
         this.empId = empId;
         this.empName = empName;
         this.empSalary = empSalary;
         this.empUserName = empUserName;
         this.empUserPwd = empUserPwd;
+        this.address = address;
     }
 
     public int getEmpId() {
@@ -40,4 +43,9 @@ public class Employee implements Serializable {
     public double getEmpSalary() {
         return empSalary;
     }
+
+    public Address getAddress() {
+        return address;
+    }
+    
 }
