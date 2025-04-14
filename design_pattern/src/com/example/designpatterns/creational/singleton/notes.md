@@ -134,6 +134,224 @@ public enum Singleton {
 
 ---
 
+## 📝 Detailed Interview Questions & Answers
+
+### Q1: What is Singleton Pattern and why do we use it?
+**Answer:**
+- Singleton ensures only one instance of a class exists in JVM
+- Used when exactly one object is needed across the system
+- Common use cases: Configuration management, Connection pools, Caches
+- Example in Spring Boot:
+```java
+@Configuration
+public class DatabaseConfig {
+    private static DatabaseConfig instance;
+    
+    private DatabaseConfig() {
+        // Private constructor
+    }
+    
+    @Bean
+    public static DatabaseConfig getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConfig();
+        }
+        return instance;
+    }
+}
+```
+
+### Q2: How do you prevent Singleton pattern from being broken by Reflection?
+**Answer:**
+1. Using Enum (Best solution):
+```java
+public enum SingletonEnum {
+    INSTANCE;
+    
+    private final String data;
+    
+    SingletonEnum() {
+        this.data = "Singleton Data";
+    }
+    
+    public String getData() {
+        return data;
+    }
+}
+```
+
+2. Using exception in constructor:
+```java
+public class Singleton {
+    private static Singleton instance;
+    
+    private Singleton() {
+        if (instance != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+}
+```
+
+### Q3: What are different ways to implement Singleton in a Spring Boot application?
+**Answer:**
+1. Using @Component/@Service (Default Singleton scope):
+```java
+@Service
+public class UserService {
+    // Spring manages singleton scope
+}
+```
+
+2. Using @Bean with @Configuration:
+```java
+@Configuration
+public class AppConfig {
+    @Bean
+    public PaymentService paymentService() {
+        return new PaymentService();
+    }
+}
+```
+
+3. Using @Scope:
+```java
+@Service
+@Scope("singleton")
+public class AuditService {
+    // Explicitly defined singleton scope
+}
+```
+
+### Q4: Real-World System Design Example: Connection Pool Manager
+```java
+public class ConnectionPoolManager {
+    private static volatile ConnectionPoolManager instance;
+    private final List<Connection> connectionPool;
+    private final int MAX_POOL_SIZE = 10;
+    
+    private ConnectionPoolManager() {
+        connectionPool = new ArrayList<>();
+        initializePool();
+    }
+    
+    public static ConnectionPoolManager getInstance() {
+        if (instance == null) {
+            synchronized (ConnectionPoolManager.class) {
+                if (instance == null) {
+                    instance = new ConnectionPoolManager();
+                }
+            }
+        }
+        return instance;
+    }
+    
+    private void initializePool() {
+        for (int i = 0; i < MAX_POOL_SIZE; i++) {
+            connectionPool.add(createNewConnection());
+        }
+    }
+    
+    public synchronized Connection getConnection() {
+        if (connectionPool.isEmpty()) {
+            throw new RuntimeException("No connections available");
+        }
+        return connectionPool.remove(0);
+    }
+    
+    public synchronized void releaseConnection(Connection conn) {
+        connectionPool.add(conn);
+    }
+    
+    private Connection createNewConnection() {
+        // Implementation for creating new database connection
+        return null; // Simplified for example
+    }
+}
+
+// Usage in Spring Boot
+@Service
+public class DatabaseService {
+    private final ConnectionPoolManager poolManager;
+    
+    public DatabaseService() {
+        this.poolManager = ConnectionPoolManager.getInstance();
+    }
+    
+    public void executeQuery(String sql) {
+        Connection conn = null;
+        try {
+            conn = poolManager.getConnection();
+            // Execute query
+        } finally {
+            if (conn != null) {
+                poolManager.releaseConnection(conn);
+            }
+        }
+    }
+}
+```
+
+### Q5: How do you handle serialization in Singleton?
+**Answer:**
+```java
+public class SerializableSingleton implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private static SerializableSingleton instance;
+    
+    private SerializableSingleton() {}
+    
+    public static SerializableSingleton getInstance() {
+        if (instance == null) {
+            instance = new SerializableSingleton();
+        }
+        return instance;
+    }
+    
+    // This method ensures that deserialization creates no new instance
+    protected Object readResolve() {
+        return getInstance();
+    }
+}
+```
+
+### Q6: Performance Considerations in Singleton
+**Best Practices:**
+1. Use double-checked locking for lazy initialization
+2. Mark instance field as volatile
+3. Consider using static initialization for critical components
+4. Use enum for simplest thread-safe implementation
+5. Example with metrics:
+```java
+public class MetricsSingleton {
+    private static volatile MetricsSingleton instance;
+    private final Map<String, Long> metrics = new ConcurrentHashMap<>();
+    
+    private MetricsSingleton() {}
+    
+    public static MetricsSingleton getInstance() {
+        if (instance == null) {
+            synchronized (MetricsSingleton.class) {
+                if (instance == null) {
+                    instance = new MetricsSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+    
+    public void recordMetric(String name, long value) {
+        metrics.put(name, value);
+    }
+    
+    public Map<String, Long> getMetrics() {
+        return new HashMap<>(metrics);
+    }
+}
+```
+
+---
+
 ## 🔁 Quick Revision Hack
 
 - Singleton = **Single object for entire app**

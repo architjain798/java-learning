@@ -94,6 +94,363 @@ notification.notifyUser();
 
 ---
 
+## 📝 Detailed Interview Questions & Answers
+
+### Q1: Implementing Factory Pattern in Spring Boot
+**Answer:**
+```java
+// Product interface
+public interface PaymentProcessor {
+    void processPayment(PaymentRequest request);
+}
+
+// Concrete products
+@Service("creditCard")
+public class CreditCardProcessor implements PaymentProcessor {
+    @Override
+    public void processPayment(PaymentRequest request) {
+        // Process credit card payment
+    }
+}
+
+@Service("paypal")
+public class PayPalProcessor implements PaymentProcessor {
+    @Override
+    public void processPayment(PaymentRequest request) {
+        // Process PayPal payment
+    }
+}
+
+// Factory
+@Service
+public class PaymentProcessorFactory {
+    private final Map<String, PaymentProcessor> processors;
+    
+    public PaymentProcessorFactory(Map<String, PaymentProcessor> processors) {
+        this.processors = processors;
+    }
+    
+    public PaymentProcessor getProcessor(String type) {
+        PaymentProcessor processor = processors.get(type);
+        if (processor == null) {
+            throw new IllegalArgumentException("Unknown payment type: " + type);
+        }
+        return processor;
+    }
+}
+
+// Usage in controller
+@RestController
+public class PaymentController {
+    private final PaymentProcessorFactory factory;
+    
+    public PaymentController(PaymentProcessorFactory factory) {
+        this.factory = factory;
+    }
+    
+    @PostMapping("/payments")
+    public void processPayment(@RequestBody PaymentRequest request) {
+        PaymentProcessor processor = factory.getProcessor(request.getType());
+        processor.processPayment(request);
+    }
+}
+```
+
+### Q2: Abstract Factory in Spring Boot Microservices
+```java
+// Abstract Factory interface
+public interface StorageFactory {
+    BlobStorage createBlobStorage();
+    QueueStorage createQueueStorage();
+    TableStorage createTableStorage();
+}
+
+// Concrete factories
+@Configuration
+@Profile("azure")
+public class AzureStorageFactory implements StorageFactory {
+    @Value("${azure.storage.connection-string}")
+    private String connectionString;
+    
+    @Override
+    @Bean
+    public BlobStorage createBlobStorage() {
+        return new AzureBlobStorage(connectionString);
+    }
+    
+    @Override
+    @Bean
+    public QueueStorage createQueueStorage() {
+        return new AzureQueueStorage(connectionString);
+    }
+    
+    @Override
+    @Bean
+    public TableStorage createTableStorage() {
+        return new AzureTableStorage(connectionString);
+    }
+}
+
+@Configuration
+@Profile("aws")
+public class AWSStorageFactory implements StorageFactory {
+    @Value("${aws.access-key}")
+    private String accessKey;
+    
+    @Value("${aws.secret-key}")
+    private String secretKey;
+    
+    @Override
+    @Bean
+    public BlobStorage createBlobStorage() {
+        return new S3Storage(accessKey, secretKey);
+    }
+    
+    @Override
+    @Bean
+    public QueueStorage createQueueStorage() {
+        return new SQSStorage(accessKey, secretKey);
+    }
+    
+    @Override
+    @Bean
+    public TableStorage createTableStorage() {
+        return new DynamoDBStorage(accessKey, secretKey);
+    }
+}
+
+// Usage in service
+@Service
+public class FileService {
+    private final BlobStorage blobStorage;
+    private final QueueStorage queueStorage;
+    
+    public FileService(StorageFactory factory) {
+        this.blobStorage = factory.createBlobStorage();
+        this.queueStorage = factory.createQueueStorage();
+    }
+    
+    public void processFile(MultipartFile file) {
+        String blobId = blobStorage.store(file);
+        queueStorage.enqueue(new ProcessFileMessage(blobId));
+    }
+}
+```
+
+### Q3: Database Connection Factory Example
+```java
+@Configuration
+public class DatabaseConfig {
+    @Bean
+    public ConnectionFactory connectionFactory(
+        @Value("${db.type}") String dbType,
+        @Value("${db.url}") String url,
+        @Value("${db.username}") String username,
+        @Value("${db.password}") String password
+    ) {
+        switch (dbType.toLowerCase()) {
+            case "mysql":
+                return new MySQLConnectionFactory(url, username, password);
+            case "postgres":
+                return new PostgresConnectionFactory(url, username, password);
+            case "mongodb":
+                return new MongoConnectionFactory(url, username, password);
+            default:
+                throw new IllegalArgumentException("Unknown DB type: " + dbType);
+        }
+    }
+}
+
+// Usage with Spring Data
+@Configuration
+@EnableJpaRepositories
+public class JpaConfig {
+    @Autowired
+    private ConnectionFactory connectionFactory;
+    
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(connectionFactory.createDataSource());
+        // ... other configuration
+        return em;
+    }
+}
+```
+
+### Q4: Factory Method vs Abstract Factory
+```java
+// Factory Method Pattern
+@Component
+public abstract class DocumentGenerator {
+    public final void generateDocument(DocumentRequest request) {
+        Document doc = createDocument(); // Factory method
+        doc.setContent(request.getContent());
+        doc.format();
+        doc.save();
+    }
+    
+    protected abstract Document createDocument();
+}
+
+@Component("pdf")
+public class PdfGenerator extends DocumentGenerator {
+    @Override
+    protected Document createDocument() {
+        return new PdfDocument();
+    }
+}
+
+@Component("word")
+public class WordGenerator extends DocumentGenerator {
+    @Override
+    protected Document createDocument() {
+        return new WordDocument();
+    }
+}
+
+// Abstract Factory Pattern
+public interface UIComponentFactory {
+    Button createButton();
+    TextField createTextField();
+    Checkbox createCheckbox();
+}
+
+@Configuration
+@Profile("material")
+public class MaterialUIFactory implements UIComponentFactory {
+    @Override
+    public Button createButton() {
+        return new MaterialButton();
+    }
+    
+    @Override
+    public TextField createTextField() {
+        return new MaterialTextField();
+    }
+    
+    @Override
+    public Checkbox createCheckbox() {
+        return new MaterialCheckbox();
+    }
+}
+```
+
+### Q5: Testing Factories in Spring Boot
+```java
+@SpringBootTest
+class PaymentProcessorFactoryTest {
+    @MockBean
+    private CreditCardProcessor creditCardProcessor;
+    
+    @MockBean
+    private PayPalProcessor paypalProcessor;
+    
+    @Autowired
+    private PaymentProcessorFactory factory;
+    
+    @Test
+    void shouldGetCorrectProcessor() {
+        // Given
+        String type = "creditCard";
+        
+        // When
+        PaymentProcessor processor = factory.getProcessor(type);
+        
+        // Then
+        assertThat(processor)
+            .isInstanceOf(CreditCardProcessor.class);
+    }
+    
+    @Test
+    void shouldThrowForUnknownType() {
+        // Given
+        String type = "unknown";
+        
+        // When/Then
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> factory.getProcessor(type)
+        );
+    }
+}
+```
+
+### Q6: Performance Considerations
+**Best Practices:**
+1. Use object pooling for expensive objects
+2. Consider caching factory results
+3. Use lazy initialization where appropriate
+4. Implement proper error handling
+5. Example with metrics:
+```java
+@Service
+@Slf4j
+public class MonitoredPaymentFactory {
+    private final Map<String, PaymentProcessor> processors;
+    private final MeterRegistry registry;
+    
+    public MonitoredPaymentFactory(
+        Map<String, PaymentProcessor> processors,
+        MeterRegistry registry
+    ) {
+        this.processors = processors;
+        this.registry = registry;
+    }
+    
+    public PaymentProcessor getProcessor(String type) {
+        Timer.Sample sample = Timer.start(registry);
+        try {
+            PaymentProcessor processor = processors.get(type);
+            if (processor == null) {
+                registry.counter("factory.errors", 
+                    "type", type).increment();
+                throw new IllegalArgumentException(
+                    "Unknown type: " + type);
+            }
+            return processor;
+        } finally {
+            sample.stop(registry.timer("factory.getProcessor", 
+                "type", type));
+        }
+    }
+}
+```
+
+---
+
+## 🎯 Implementation Tips
+
+1. Use Spring's dependency injection
+2. Consider using enums for factory types
+3. Implement proper error handling
+4. Add monitoring and metrics
+5. Use profiles for different implementations
+
+Example:
+```java
+@Configuration
+public class FactoryConfig {
+    public enum StorageType {
+        S3, AZURE_BLOB, GCS
+    }
+    
+    @Bean
+    public StorageFactory storageFactory(
+        @Value("${storage.type}") StorageType type,
+        ObjectMapper objectMapper
+    ) {
+        return switch (type) {
+            case S3 -> new S3Factory(objectMapper);
+            case AZURE_BLOB -> new AzureBlobFactory(objectMapper);
+            case GCS -> new GCSFactory(objectMapper);
+        };
+    }
+}
+```
+
+---
+
 # 🧠 **2. Abstract Factory Design Pattern**
 
 ### ✅ Definition:

@@ -164,6 +164,328 @@ ResponseEntity.ok(
 
 ---
 
+## 📝 Detailed Interview Questions & Answers
+
+### Q1: Deep Dive into Builder Pattern Implementation
+**Answer:**
+```java
+@Data
+@Builder
+public class ComplexObject {
+    private final String requiredField1;
+    private final String requiredField2;
+    private final Integer optionalField1;
+    private final List<String> optionalList;
+    private final Map<String, Object> attributes;
+    
+    // Lombok @Builder creates all the builder code for us
+}
+
+// Usage in Spring Boot
+@RestController
+public class UserController {
+    @PostMapping("/users")
+    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequest request) {
+        User user = User.builder()
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .preferences(
+                UserPreferences.builder()
+                    .language(request.getLanguage())
+                    .timezone(request.getTimezone())
+                    .build()
+            )
+            .build();
+            
+        return ResponseEntity.ok(
+            ApiResponse.builder()
+                .status("success")
+                .data(user)
+                .build()
+        );
+    }
+}
+```
+
+### Q2: System Design Example: API Response Builder
+```java
+@Builder
+@JsonInclude(Include.NON_NULL)
+public class ApiResponse<T> {
+    private final String status;
+    private final T data;
+    private final String message;
+    private final List<String> errors;
+    private final Map<String, Object> metadata;
+    
+    // Static convenience methods
+    public static <T> ApiResponse<T> success(T data) {
+        return ApiResponse.<T>builder()
+            .status("success")
+            .data(data)
+            .build();
+    }
+    
+    public static <T> ApiResponse<T> error(String message) {
+        return ApiResponse.<T>builder()
+            .status("error")
+            .message(message)
+            .build();
+    }
+}
+
+@Service
+public class OrderService {
+    public ApiResponse<Order> createOrder(OrderRequest request) {
+        try {
+            Order order = Order.builder()
+                .customerId(request.getCustomerId())
+                .items(request.getItems().stream()
+                    .map(item -> OrderItem.builder()
+                        .productId(item.getProductId())
+                        .quantity(item.getQuantity())
+                        .build())
+                    .collect(Collectors.toList()))
+                .build();
+                
+            return ApiResponse.success(order);
+        } catch (Exception e) {
+            return ApiResponse.error("Failed to create order");
+        }
+    }
+}
+```
+
+### Q3: How to implement Builder with required parameters?
+**Answer:**
+```java
+public class User {
+    private final String firstName; // Required
+    private final String lastName;  // Required
+    private final String email;     // Optional
+    private final String phone;     // Optional
+    
+    private User(UserBuilder builder) {
+        this.firstName = Objects.requireNonNull(builder.firstName);
+        this.lastName = Objects.requireNonNull(builder.lastName);
+        this.email = builder.email;
+        this.phone = builder.phone;
+    }
+    
+    public static class UserBuilder {
+        private final String firstName; // Required
+        private final String lastName;  // Required
+        private String email;
+        private String phone;
+        
+        public UserBuilder(String firstName, String lastName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+        
+        public UserBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+        
+        public UserBuilder phone(String phone) {
+            this.phone = phone;
+            return this;
+        }
+        
+        public User build() {
+            return new User(this);
+        }
+    }
+}
+```
+
+### Q4: Builder with Validation Example
+```java
+@Builder
+public class EmployeeOnboarding {
+    private final String employeeId;
+    private final String email;
+    private final String department;
+    private final List<String> roles;
+    
+    public static class EmployeeOnboardingBuilder {
+        // Custom build method with validation
+        public EmployeeOnboarding build() {
+            validateEmployeeId();
+            validateEmail();
+            validateDepartment();
+            validateRoles();
+            return new EmployeeOnboarding(this);
+        }
+        
+        private void validateEmployeeId() {
+            if (employeeId == null || !employeeId.matches("EMP\\d{6}")) {
+                throw new IllegalStateException(
+                    "Invalid employee ID format. Must be EMP followed by 6 digits"
+                );
+            }
+        }
+        
+        private void validateEmail() {
+            if (email == null || !email.matches(".*@company\\.com")) {
+                throw new IllegalStateException(
+                    "Email must be a company email address"
+                );
+            }
+        }
+        
+        private void validateDepartment() {
+            if (department == null || department.trim().isEmpty()) {
+                throw new IllegalStateException(
+                    "Department is required"
+                );
+            }
+        }
+        
+        private void validateRoles() {
+            if (roles == null || roles.isEmpty()) {
+                throw new IllegalStateException(
+                    "At least one role is required"
+                );
+            }
+        }
+    }
+}
+```
+
+### Q5: Spring Boot Configuration Builder
+```java
+@Configuration
+@Builder
+@ConfigurationProperties(prefix = "app")
+public class AppConfig {
+    private final String apiKey;
+    private final String apiSecret;
+    private final int maxConnections;
+    private final Duration timeout;
+    private final Map<String, String> features;
+    
+    @Bean
+    public ApiClient apiClient() {
+        return ApiClient.builder()
+            .apiKey(apiKey)
+            .apiSecret(apiSecret)
+            .maxConnections(maxConnections)
+            .timeout(timeout)
+            .features(features)
+            .build();
+    }
+}
+
+// application.yml
+app:
+  api-key: ${API_KEY}
+  api-secret: ${API_SECRET}
+  max-connections: 100
+  timeout: 30s
+  features:
+    feature1: enabled
+    feature2: disabled
+```
+
+### Q6: Performance and Testing Considerations
+**Best Practices:**
+1. Use immutable objects where possible
+2. Consider using Lombok @Builder for simple cases
+3. Add validation in build() method
+4. Create static factory methods for common configurations
+5. Example with test data builder pattern:
+```java
+@Builder
+public class TestOrder {
+    private final String orderId;
+    private final Customer customer;
+    private final List<OrderItem> items;
+    private final BigDecimal total;
+    private final OrderStatus status;
+    
+    public static class TestOrderBuilder {
+        // Default values for testing
+        private String orderId = "TEST-123";
+        private Customer customer = TestCustomer.basic().build();
+        private List<OrderItem> items = Collections.singletonList(
+            TestOrderItem.basic().build()
+        );
+        private BigDecimal total = BigDecimal.TEN;
+        private OrderStatus status = OrderStatus.PENDING;
+        
+        // Custom methods for specific test scenarios
+        public TestOrderBuilder completed() {
+            this.status = OrderStatus.COMPLETED;
+            return this;
+        }
+        
+        public TestOrderBuilder withItems(int count) {
+            this.items = IntStream.range(0, count)
+                .mapToObj(i -> TestOrderItem.basic().build())
+                .collect(Collectors.toList());
+            return this;
+        }
+    }
+}
+
+@Test
+void testOrderProcessing() {
+    Order order = TestOrder.builder()
+        .withItems(3)
+        .completed()
+        .build();
+        
+    assertThat(order.getStatus())
+        .isEqualTo(OrderStatus.COMPLETED);
+    assertThat(order.getItems())
+        .hasSize(3);
+}
+```
+
+---
+
+## 🎯 Implementation Tips
+
+1. Use Lombok @Builder for simple cases
+2. Implement custom validation in build()
+3. Consider static factory methods
+4. Use test data builders for unit tests
+5. Add JavaDoc for complex builders
+
+Example:
+```java
+@Builder(toBuilder = true)
+public class SpringBootApp {
+    private final String name;
+    private final String version;
+    private final List<String> profiles;
+    private final Map<String, Object> properties;
+    
+    public static SpringBootApp development() {
+        return builder()
+            .name("MyApp")
+            .version("1.0.0")
+            .profiles(Arrays.asList("dev", "local"))
+            .properties(new HashMap<>())
+            .build();
+    }
+    
+    public static SpringBootApp production() {
+        return builder()
+            .name("MyApp")
+            .version("1.0.0")
+            .profiles(Arrays.asList("prod"))
+            .properties(new HashMap<>())
+            .build();
+    }
+}
+```
+
+---
+
 ## 🔁 Quick Revision Hack
 
 - Builder = "Step by step construction"  
