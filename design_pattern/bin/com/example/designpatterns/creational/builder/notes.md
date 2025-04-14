@@ -164,239 +164,96 @@ ResponseEntity.ok(
 
 ---
 
-## 📝 Detailed Interview Questions & Answers
+## 🎯 Practical Decision Guide
 
-### Q1: Deep Dive into Builder Pattern Implementation
-**Answer:**
+### When to Use Builder Pattern?
+
+1. **Complex Object Construction**
+   - Many optional parameters
+   - Need step-by-step construction
+   - Object has nested objects
+   
+2. **Immutable Objects**
+   - Need thread-safe object creation
+   - Want to ensure object state consistency
+   
+3. **Fluent APIs**
+   - Want method chaining
+   - Building queries or configurations
+
 ```java
-@Data
-@Builder
-public class ComplexObject {
-    private final String requiredField1;
-    private final String requiredField2;
-    private final Integer optionalField1;
-    private final List<String> optionalList;
-    private final Map<String, Object> attributes;
-    
-    // Lombok @Builder creates all the builder code for us
-}
-
-// Usage in Spring Boot
-@RestController
-public class UserController {
-    @PostMapping("/users")
-    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequest request) {
-        User user = User.builder()
-            .firstName(request.getFirstName())
-            .lastName(request.getLastName())
-            .email(request.getEmail())
-            .preferences(
-                UserPreferences.builder()
-                    .language(request.getLanguage())
-                    .timezone(request.getTimezone())
-                    .build()
-            )
-            .build();
-            
-        return ResponseEntity.ok(
-            ApiResponse.builder()
-                .status("success")
-                .data(user)
-                .build()
-        );
+// Decision Flow
+if (hasMoreThan4Parameters || hasOptionalParameters) {
+    if (needsImmutability) {
+        use Builder;
+    } else if (parametersAreOfSameType) {
+        use Telescoping Constructor;
+    } else {
+        use Builder;
     }
+} else {
+    use Constructor;
 }
 ```
 
-### Q2: System Design Example: API Response Builder
+## 🌟 Modern Use Cases
+
+### 1. RESTful API Request/Response Builder
 ```java
 @Builder
 @JsonInclude(Include.NON_NULL)
 public class ApiResponse<T> {
-    private final String status;
+    private final int status;
     private final T data;
     private final String message;
     private final List<String> errors;
     private final Map<String, Object> metadata;
     
-    // Static convenience methods
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
-            .status("success")
+            .status(200)
             .data(data)
             .build();
     }
     
     public static <T> ApiResponse<T> error(String message) {
         return ApiResponse.<T>builder()
-            .status("error")
+            .status(400)
             .message(message)
             .build();
     }
 }
-
-@Service
-public class OrderService {
-    public ApiResponse<Order> createOrder(OrderRequest request) {
-        try {
-            Order order = Order.builder()
-                .customerId(request.getCustomerId())
-                .items(request.getItems().stream()
-                    .map(item -> OrderItem.builder()
-                        .productId(item.getProductId())
-                        .quantity(item.getQuantity())
-                        .build())
-                    .collect(Collectors.toList()))
-                .build();
-                
-            return ApiResponse.success(order);
-        } catch (Exception e) {
-            return ApiResponse.error("Failed to create order");
-        }
-    }
-}
 ```
 
-### Q3: How to implement Builder with required parameters?
-**Answer:**
+### 2. GraphQL Query Builder
 ```java
-public class User {
-    private final String firstName; // Required
-    private final String lastName;  // Required
-    private final String email;     // Optional
-    private final String phone;     // Optional
+public class GraphQLQueryBuilder {
+    private final StringBuilder query = new StringBuilder();
+    private final Map<String, Object> variables = new HashMap<>();
     
-    private User(UserBuilder builder) {
-        this.firstName = Objects.requireNonNull(builder.firstName);
-        this.lastName = Objects.requireNonNull(builder.lastName);
-        this.email = builder.email;
-        this.phone = builder.phone;
+    public GraphQLQueryBuilder operation(String name) {
+        query.append("query ").append(name).append(" {");
+        return this;
     }
     
-    public static class UserBuilder {
-        private final String firstName; // Required
-        private final String lastName;  // Required
-        private String email;
-        private String phone;
-        
-        public UserBuilder(String firstName, String lastName) {
-            this.firstName = firstName;
-            this.lastName = lastName;
-        }
-        
-        public UserBuilder email(String email) {
-            this.email = email;
-            return this;
-        }
-        
-        public UserBuilder phone(String phone) {
-            this.phone = phone;
-            return this;
-        }
-        
-        public User build() {
-            return new User(this);
-        }
+    public GraphQLQueryBuilder field(String name) {
+        query.append(name);
+        return this;
+    }
+    
+    public GraphQLQueryBuilder withVariable(String name, Object value) {
+        variables.put(name, value);
+        return this;
+    }
+    
+    public GraphQLQuery build() {
+        query.append("}");
+        return new GraphQLQuery(query.toString(), variables);
     }
 }
 ```
 
-### Q4: Builder with Validation Example
-```java
-@Builder
-public class EmployeeOnboarding {
-    private final String employeeId;
-    private final String email;
-    private final String department;
-    private final List<String> roles;
-    
-    public static class EmployeeOnboardingBuilder {
-        // Custom build method with validation
-        public EmployeeOnboarding build() {
-            validateEmployeeId();
-            validateEmail();
-            validateDepartment();
-            validateRoles();
-            return new EmployeeOnboarding(this);
-        }
-        
-        private void validateEmployeeId() {
-            if (employeeId == null || !employeeId.matches("EMP\\d{6}")) {
-                throw new IllegalStateException(
-                    "Invalid employee ID format. Must be EMP followed by 6 digits"
-                );
-            }
-        }
-        
-        private void validateEmail() {
-            if (email == null || !email.matches(".*@company\\.com")) {
-                throw new IllegalStateException(
-                    "Email must be a company email address"
-                );
-            }
-        }
-        
-        private void validateDepartment() {
-            if (department == null || department.trim().isEmpty()) {
-                throw new IllegalStateException(
-                    "Department is required"
-                );
-            }
-        }
-        
-        private void validateRoles() {
-            if (roles == null || roles.isEmpty()) {
-                throw new IllegalStateException(
-                    "At least one role is required"
-                );
-            }
-        }
-    }
-}
-```
-
-### Q5: Spring Boot Configuration Builder
-```java
-@Configuration
-@Builder
-@ConfigurationProperties(prefix = "app")
-public class AppConfig {
-    private final String apiKey;
-    private final String apiSecret;
-    private final int maxConnections;
-    private final Duration timeout;
-    private final Map<String, String> features;
-    
-    @Bean
-    public ApiClient apiClient() {
-        return ApiClient.builder()
-            .apiKey(apiKey)
-            .apiSecret(apiSecret)
-            .maxConnections(maxConnections)
-            .timeout(timeout)
-            .features(features)
-            .build();
-    }
-}
-
-// application.yml
-app:
-  api-key: ${API_KEY}
-  api-secret: ${API_SECRET}
-  max-connections: 100
-  timeout: 30s
-  features:
-    feature1: enabled
-    feature2: disabled
-```
-
-### Q6: Performance and Testing Considerations
-**Best Practices:**
-1. Use immutable objects where possible
-2. Consider using Lombok @Builder for simple cases
-3. Add validation in build() method
-4. Create static factory methods for common configurations
-5. Example with test data builder pattern:
+### 3. Test Data Builder
 ```java
 @Builder
 public class TestOrder {
@@ -404,93 +261,460 @@ public class TestOrder {
     private final Customer customer;
     private final List<OrderItem> items;
     private final BigDecimal total;
-    private final OrderStatus status;
     
-    public static class TestOrderBuilder {
-        // Default values for testing
-        private String orderId = "TEST-123";
-        private Customer customer = TestCustomer.basic().build();
-        private List<OrderItem> items = Collections.singletonList(
-            TestOrderItem.basic().build()
-        );
-        private BigDecimal total = BigDecimal.TEN;
-        private OrderStatus status = OrderStatus.PENDING;
-        
-        // Custom methods for specific test scenarios
-        public TestOrderBuilder completed() {
-            this.status = OrderStatus.COMPLETED;
-            return this;
-        }
-        
-        public TestOrderBuilder withItems(int count) {
-            this.items = IntStream.range(0, count)
-                .mapToObj(i -> TestOrderItem.basic().build())
-                .collect(Collectors.toList());
-            return this;
-        }
+    public static TestOrderBuilder withDefaultCustomer() {
+        return builder()
+            .customer(Customer.builder()
+                .name("John Doe")
+                .email("john@example.com")
+                .build());
     }
-}
-
-@Test
-void testOrderProcessing() {
-    Order order = TestOrder.builder()
-        .withItems(3)
-        .completed()
-        .build();
-        
-    assertThat(order.getStatus())
-        .isEqualTo(OrderStatus.COMPLETED);
-    assertThat(order.getItems())
-        .hasSize(3);
+    
+    public static TestOrderBuilder withItems(int count) {
+        return builder()
+            .items(IntStream.range(0, count)
+                .mapToObj(i -> new OrderItem("item" + i))
+                .collect(Collectors.toList()));
+    }
 }
 ```
 
----
+## 💡 Common Anti-patterns to Avoid
 
-## 🎯 Implementation Tips
+1. **Mutable Builders**
+   ```java
+   // Bad: Builder can be reused and modified
+   public class MutableBuilder {
+       private List<String> items;
+       
+       public MutableBuilder addItem(String item) {
+           items.add(item); // Modifies state!
+           return this;
+       }
+   }
+   
+   // Good: Create new instance each time
+   public class ImmutableBuilder {
+       private final List<String> items;
+       
+       public ImmutableBuilder addItem(String item) {
+           List<String> newItems = new ArrayList<>(items);
+           newItems.add(item);
+           return new ImmutableBuilder(newItems);
+       }
+   }
+   ```
 
-1. Use Lombok @Builder for simple cases
-2. Implement custom validation in build()
-3. Consider static factory methods
-4. Use test data builders for unit tests
-5. Add JavaDoc for complex builders
+2. **Complex Builder Logic**
+   ```java
+   // Bad: Logic in builder
+   public class ComplexBuilder {
+       public ComplexBuilder processData() {
+           // Complex business logic here
+           return this;
+       }
+   }
+   
+   // Good: Logic in domain
+   public class GoodBuilder {
+       public GoodBuilder withData(Data data) {
+           this.data = data.process();
+           return this;
+       }
+   }
+   ```
 
-Example:
+## 🔍 Performance Considerations
+
+1. **Builder Pooling for Heavy Objects**
 ```java
-@Builder(toBuilder = true)
-public class SpringBootApp {
-    private final String name;
-    private final String version;
-    private final List<String> profiles;
-    private final Map<String, Object> properties;
+public class BuilderPool {
+    private final Queue<ProductBuilder> pool;
     
-    public static SpringBootApp development() {
-        return builder()
-            .name("MyApp")
-            .version("1.0.0")
-            .profiles(Arrays.asList("dev", "local"))
-            .properties(new HashMap<>())
-            .build();
+    public ProductBuilder acquire() {
+        ProductBuilder builder = pool.poll();
+        return builder != null ? builder : new ProductBuilder();
     }
     
-    public static SpringBootApp production() {
-        return builder()
-            .name("MyApp")
-            .version("1.0.0")
-            .profiles(Arrays.asList("prod"))
-            .properties(new HashMap<>())
+    public void release(ProductBuilder builder) {
+        builder.reset();
+        pool.offer(builder);
+    }
+}
+```
+
+2. **Lazy Field Initialization**
+```java
+@Builder
+public class LazyProduct {
+    private final Supplier<ExpensiveObject> expensiveField;
+    
+    public ExpensiveObject getExpensiveField() {
+        return expensiveField.get();
+    }
+    
+    public static class LazyProductBuilder {
+        public LazyProductBuilder expensiveField() {
+            this.expensiveField = Lazy.of(ExpensiveObject::new);
+            return this;
+        }
+    }
+}
+```
+
+## 🎯 Real-World Implementation Examples
+
+### 1. Configuration Builder
+```java
+@Builder
+@ConfigurationProperties(prefix = "app")
+public class ApplicationConfig {
+    private final String apiKey;
+    private final Duration timeout;
+    private final RetryConfig retryConfig;
+    private final Map<String, String> headers;
+    
+    @Builder
+    public static class RetryConfig {
+        private final int maxAttempts;
+        private final Duration delay;
+        private final boolean exponentialBackoff;
+    }
+}
+
+// Usage
+ApplicationConfig config = ApplicationConfig.builder()
+    .apiKey("xyz")
+    .timeout(Duration.ofSeconds(30))
+    .retryConfig(RetryConfig.builder()
+        .maxAttempts(3)
+        .delay(Duration.ofSeconds(1))
+        .exponentialBackoff(true)
+        .build())
+    .headers(Map.of("User-Agent", "MyApp/1.0"))
+    .build();
+```
+
+### 2. Query Builder
+```java
+public class JpaQueryBuilder {
+    private final CriteriaBuilder cb;
+    private final List<Predicate> predicates = new ArrayList<>();
+    
+    public JpaQueryBuilder withField(String field, String value) {
+        if (value != null) {
+            predicates.add(cb.equal(root.get(field), value));
+        }
+        return this;
+    }
+    
+    public JpaQueryBuilder withDateRange(String field, 
+                                       LocalDate start, 
+                                       LocalDate end) {
+        if (start != null) {
+            predicates.add(cb.greaterThanOrEqualTo(
+                root.get(field), start));
+        }
+        if (end != null) {
+            predicates.add(cb.lessThanOrEqualTo(
+                root.get(field), end));
+        }
+        return this;
+    }
+    
+    public TypedQuery<T> build() {
+        CriteriaQuery<T> query = cb.createQuery(entityClass);
+        query.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(query);
+    }
+}
+```
+
+## 🌐 Cloud-Native Pattern Combinations
+
+### 1. Builder + Factory for Cloud Resources
+```java
+public interface CloudResourceBuilder {
+    CloudResourceBuilder withRegion(String region);
+    CloudResourceBuilder withTags(Map<String, String> tags);
+    CloudResourceBuilder withCapacity(int capacity);
+    CloudResource build();
+}
+
+@Component("aws")
+public class AWSResourceBuilder implements CloudResourceBuilder {
+    private final AWSResourceSpec spec = new AWSResourceSpec();
+    
+    @Override
+    public CloudResourceBuilder withRegion(String region) {
+        spec.setRegion(region);
+        return this;
+    }
+    
+    @Override
+    public CloudResourceBuilder withTags(Map<String, String> tags) {
+        spec.setTags(tags);
+        return this;
+    }
+    
+    @Override
+    public CloudResourceBuilder withCapacity(int capacity) {
+        spec.setCapacity(capacity);
+        return this;
+    }
+    
+    @Override
+    public CloudResource build() {
+        validate();
+        return new AWSResource(spec);
+    }
+}
+
+@Service
+public class CloudResourceBuilderFactory {
+    private final Map<String, CloudResourceBuilder> builders;
+    
+    public CloudResourceBuilder getBuilder(String cloudProvider) {
+        return builders.get(cloudProvider.toLowerCase());
+    }
+}
+```
+
+### 2. Builder + Strategy for Deployment
+```java
+public interface DeploymentBuilder {
+    DeploymentBuilder withImage(String image);
+    DeploymentBuilder withReplicas(int replicas);
+    DeploymentBuilder withEnvironment(Map<String, String> env);
+    Deployment build();
+}
+
+@Component
+public class KubernetesDeploymentBuilder implements DeploymentBuilder {
+    private final DeploymentSpec spec = new DeploymentSpec();
+    private final List<DeploymentStrategy> strategies;
+    
+    @Override
+    public Deployment build() {
+        validate();
+        for (DeploymentStrategy strategy : strategies) {
+            strategy.apply(spec);
+        }
+        return new KubernetesDeployment(spec);
+    }
+}
+```
+
+### 3. Builder + Chain of Responsibility for Validation
+```java
+public class ValidatingBuilder<T> {
+    private final Builder<T> builder;
+    private final List<ValidationHandler> validators;
+    
+    public T build() {
+        T object = builder.build();
+        for (ValidationHandler validator : validators) {
+            ValidationResult result = validator.validate(object);
+            if (!result.isValid()) {
+                throw new ValidationException(result.getErrors());
+            }
+        }
+        return object;
+    }
+}
+
+@Component
+public class ResourceValidationHandler implements ValidationHandler {
+    @Override
+    public ValidationResult validate(Object resource) {
+        // Validate resource configuration
+        return ValidationResult.success();
+    }
+}
+```
+
+## 🔄 Cloud-Native Adaptations
+
+### 1. Configuration Building
+```java
+@Configuration
+public class ConfigurationBuilder {
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+    
+    @Bean
+    public ApplicationConfig buildConfig() {
+        return ApplicationConfig.builder()
+            .environment(activeProfile)
+            .kubernetes(isKubernetes())
+            .metrics(MetricsConfig.builder()
+                .enabled(true)
+                .endpoint("/metrics")
+                .build())
+            .resilience(ResilienceConfig.builder()
+                .retryAttempts(3)
+                .timeout(Duration.ofSeconds(5))
+                .circuitBreaker(true)
+                .build())
             .build();
     }
 }
 ```
 
----
+### 2. Service Mesh Integration
+```java
+@Configuration
+public class ServiceMeshBuilder {
+    @Bean
+    public MeshConfig buildMeshConfig() {
+        return MeshConfig.builder()
+            .istio(IstioConfig.builder()
+                .enabled(true)
+                .timeout(Duration.ofSeconds(1))
+                .retries(2)
+                .circuitBreaker(CircuitBreakerConfig.builder()
+                    .failureThreshold(50)
+                    .waitDuration(Duration.ofSeconds(30))
+                    .build())
+                .build())
+            .tracing(TracingConfig.builder()
+                .enabled(true)
+                .sampler(100)
+                .build())
+            .build();
+    }
+}
+```
 
-## 🔁 Quick Revision Hack
+### 3. Multi-Tenant Builder
+```java
+@Component
+public class TenantAwareBuilder<T> {
+    private final String tenantId;
+    private final Builder<T> delegate;
+    
+    public T build() {
+        return delegate.build()
+            .toBuilder()
+            .tenantId(tenantId)
+            .auditInfo(AuditInfo.builder()
+                .createdBy("system")
+                .createdAt(Instant.now())
+                .build())
+            .build();
+    }
+}
+```
 
-- Builder = "Step by step construction"  
-- Think Pizza: choose crust, cheese, toppings  
-- Prevents constructor hell  
-- Great for DTOs, responses, config
+## 🎯 Decision Matrix for Cloud-Native Architecture
 
----
+### When to Use What:
+
+1. **Simple Builder**
+   - Single object construction
+   - Immutable objects
+   - Many optional parameters
+
+2. **Fluent Builder**
+   - Method chaining needed
+   - Complex object hierarchy
+   - Better readability required
+
+3. **Validated Builder**
+   - Complex validation rules
+   - Business rule enforcement
+   - Cross-field validation
+
+```java
+// Decision Flow:
+if (isCloudNative) {
+    if (needsCrossServiceValidation) {
+        use ValidatedBuilder;
+    } else if (hasComplexHierarchy) {
+        use FluentBuilder;
+    } else {
+        use SimpleBuilder;
+    }
+} else {
+    if (manyOptionalParams) {
+        use SimpleBuilder;
+    } else {
+        use Constructor;
+    }
+}
+```
+
+### Cloud-Native Considerations:
+
+1. **Configuration Management**
+   ```java
+   @Configuration
+   public class ConfigBuilder {
+       @Bean
+       public Config buildConfig(
+           @Value("${config.path}") String configPath
+       ) {
+           return Config.builder()
+               .source(ConfigSource.builder()
+                   .type(isKubernetes() ? "configmap" : "file")
+                   .path(configPath)
+                   .build())
+               .refresh(RefreshConfig.builder()
+                   .enabled(true)
+                   .interval(Duration.ofMinutes(5))
+                   .build())
+               .build();
+       }
+   }
+   ```
+
+2. **Resource Provisioning**
+   ```java
+   @Service
+   public class ResourceProvisioner {
+       public Resource provision(String type) {
+           return Resource.builder()
+               .type(type)
+               .metadata(ResourceMetadata.builder()
+                   .namespace("default")
+                   .labels(Map.of("app", "myapp"))
+                   .build())
+               .spec(ResourceSpec.builder()
+                   .replicas(3)
+                   .strategy(Strategy.RollingUpdate)
+                   .build())
+               .build();
+       }
+   }
+   ```
+
+3. **Distributed Tracing**
+   ```java
+   @Configuration
+   public class TracingBuilder {
+       @Bean
+       public Tracer buildTracer() {
+           return Tracer.builder()
+               .serviceName("my-service")
+               .environment(activeProfile)
+               .sampler(Sampler.builder()
+                   .type("probabilistic")
+                   .param(1.0)
+                   .build())
+               .reporter(Reporter.builder()
+                   .sender(KafkaSender.builder()
+                       .topic("jaeger-spans")
+                       .bootstrapServers("kafka:9092")
+                       .build())
+                   .build())
+               .build();
+       }
+   }
+   ```
+
+Remember:
+- Keep builders immutable
+- Use validation when needed
+- Consider distributed system aspects
+- Implement proper error handling
+- Add monitoring and tracing

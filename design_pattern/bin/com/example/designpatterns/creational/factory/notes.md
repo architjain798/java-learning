@@ -419,35 +419,247 @@ public class MonitoredPaymentFactory {
 
 ---
 
-## 🎯 Implementation Tips
+## 🌐 Pattern Combinations & Cloud-Native Architecture
 
-1. Use Spring's dependency injection
-2. Consider using enums for factory types
-3. Implement proper error handling
-4. Add monitoring and metrics
-5. Use profiles for different implementations
-
-Example:
+### 1. Factory + Strategy Pattern
 ```java
-@Configuration
-public class FactoryConfig {
-    public enum StorageType {
-        S3, AZURE_BLOB, GCS
+// Cloud provider strategy
+public interface CloudProvider {
+    Storage createStorage();
+    Compute createCompute();
+    Network createNetwork();
+}
+
+@Component("aws")
+public class AWSProvider implements CloudProvider {
+    @Override
+    public Storage createStorage() {
+        return new S3Storage();
     }
     
-    @Bean
-    public StorageFactory storageFactory(
-        @Value("${storage.type}") StorageType type,
-        ObjectMapper objectMapper
-    ) {
-        return switch (type) {
-            case S3 -> new S3Factory(objectMapper);
-            case AZURE_BLOB -> new AzureBlobFactory(objectMapper);
-            case GCS -> new GCSFactory(objectMapper);
-        };
+    @Override
+    public Compute createCompute() {
+        return new EC2Instance();
+    }
+    
+    @Override
+    public Network createNetwork() {
+        return new VPCNetwork();
+    }
+}
+
+// Factory using strategy
+@Service
+public class CloudResourceFactory {
+    private final Map<String, CloudProvider> providers;
+    
+    public CloudResourceFactory(Map<String, CloudProvider> providers) {
+        this.providers = providers;
+    }
+    
+    public CloudProvider getProvider(String type) {
+        return providers.get(type.toLowerCase());
     }
 }
 ```
+
+### 2. Factory + Builder Pattern
+```java
+public interface MessageFactory {
+    MessageBuilder createBuilder();
+}
+
+@Component("kafka")
+public class KafkaMessageFactory implements MessageFactory {
+    @Override
+    public MessageBuilder createBuilder() {
+        return KafkaMessage.builder()
+            .withRetry(RetryPolicy.DEFAULT)
+            .withTimeout(Duration.ofSeconds(5));
+    }
+}
+
+@Component("rabbitmq")
+public class RabbitMessageFactory implements MessageFactory {
+    @Override
+    public MessageBuilder createBuilder() {
+        return RabbitMessage.builder()
+            .withExchange("default")
+            .withDurable(true);
+    }
+}
+```
+
+### 3. Factory + Decorator for Metrics
+```java
+public interface ServiceFactory {
+    Service createService();
+}
+
+@Configuration
+public class MetricDecoratedFactory implements ServiceFactory {
+    private final ServiceFactory delegate;
+    private final MeterRegistry registry;
+    
+    @Override
+    public Service createService() {
+        Service service = delegate.createService();
+        return new MetricDecorator(service, registry);
+    }
+}
+```
+
+## 🔄 Cloud-Native Adaptations
+
+### 1. Dynamic Service Discovery
+```java
+@Configuration
+public class ServiceDiscoveryFactory {
+    @Bean
+    @ConditionalOnProperty(name = "discovery.type", havingValue = "eureka")
+    public DiscoveryClient eurekaDiscoveryClient() {
+        return new EurekaDiscoveryClient();
+    }
+    
+    @Bean
+    @ConditionalOnProperty(name = "discovery.type", havingValue = "consul")
+    public DiscoveryClient consulDiscoveryClient() {
+        return new ConsulDiscoveryClient();
+    }
+}
+```
+
+### 2. Container-Aware Factory
+```java
+@Configuration
+public class ContainerAwareFactory {
+    @Bean
+    @Profile("kubernetes")
+    public ConfigurationSource k8sConfigSource() {
+        return new KubernetesConfigMap();
+    }
+    
+    @Bean
+    @Profile("!kubernetes")
+    public ConfigurationSource fileConfigSource() {
+        return new FileBasedConfig();
+    }
+}
+```
+
+### 3. Multi-Region Factory
+```java
+@Configuration
+public class RegionalResourceFactory {
+    private final Map<Region, ResourceFactory> factories;
+    
+    public Resource createResource(Region region) {
+        return factories.get(region)
+            .createWithRegionalSettings();
+    }
+    
+    @Bean
+    @ConditionalOnProperty(name = "cloud.region", havingValue = "us-east-1")
+    public ResourceFactory usEastFactory() {
+        return new USEastResourceFactory();
+    }
+}
+```
+
+## 🎯 Decision Matrix for Modern Architecture
+
+### When to Use What:
+
+1. **Simple Factory**
+   - Single responsibility creation
+   - No subclass variation needed
+   - Simple object creation logic
+
+2. **Factory Method**
+   - Subclasses decide implementation
+   - Need creation method overriding
+   - Framework/library development
+
+3. **Abstract Factory**
+   - Family of related objects
+   - Platform/environment variations
+   - Consistent object sets
+
+```java
+// Decision Flow:
+if (needFamilyOfObjects) {
+    if (platformDependent) {
+        use AbstractFactory;
+    } else if (needConsistency) {
+        use AbstractFactory;
+    }
+} else {
+    if (subclassesDecideType) {
+        use FactoryMethod;
+    } else {
+        use SimpleFactory;
+    }
+}
+```
+
+### Cloud-Native Considerations:
+
+1. **Service Discovery**
+   - Use platform service registry
+   - Implement health checks
+   - Handle failover scenarios
+
+2. **Configuration Management**
+   - Use ConfigMaps/Secrets
+   - Implement hot reloading
+   - Regional configurations
+
+3. **Scalability**
+   - Resource pooling
+   - Load balancing
+   - Regional routing
+
+Example Implementation:
+```java
+@Configuration
+@EnableDiscoveryClient
+public class CloudAwareFactory {
+    @Autowired
+    private DiscoveryClient discoveryClient;
+    
+    @Bean
+    public ServiceFactory serviceFactory() {
+        return new DiscoveryAwareFactory(discoveryClient);
+    }
+    
+    private class DiscoveryAwareFactory implements ServiceFactory {
+        private final DiscoveryClient discoveryClient;
+        
+        @Override
+        public Service createService(String name) {
+            List<ServiceInstance> instances = 
+                discoveryClient.getInstances(name);
+            
+            if (instances.isEmpty()) {
+                throw new ServiceNotFoundException(name);
+            }
+            
+            // Load balance between instances
+            ServiceInstance instance = 
+                loadBalancer.choose(instances);
+                
+            return createServiceProxy(instance);
+        }
+    }
+}
+```
+
+Remember:
+- Use platform features when available
+- Consider regional requirements
+- Implement proper health checks
+- Handle failure scenarios gracefully
+- Use service discovery when appropriate
 
 ---
 
