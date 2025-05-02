@@ -62,6 +62,7 @@ class ExecutorServiceDemo {
                     System.out.println("Factorial of " + number + " -> " + result);
                 });
             }
+            System.out.println("hello");
         } finally {
             if (executor != null) {
                 executor.shutdown();

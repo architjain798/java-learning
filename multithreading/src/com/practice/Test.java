@@ -10,15 +10,18 @@ public class Test {
         World world = new World();  // NEW STATE
         world.start(); // RUNNABLE STATE
 
-        // implememting runnable interface
+        // implementing runnable interface
         WorldModern worldModern = new WorldModern();
         Thread t1 = new Thread(worldModern);
+        
         t1.start();
 
         // main thread it is
         for (int i = 0; i < 10; i++) {
             System.out.println(Thread.currentThread().getName());
         }
+        
+
     }
 }
 // Thread LifeCycle
