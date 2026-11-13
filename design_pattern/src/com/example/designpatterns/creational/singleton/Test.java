@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
 
 public class Test {
 
@@ -15,7 +16,7 @@ public class Test {
         System.out.println(obj2.hashCode());
 
         // Breaking the singleton using serlization
-        // if we want to prevent it then override the 
+        // if we want to prevent it then override the
         FileOutputStream fout = new FileOutputStream("C:\\Users\\archi\\OneDrive\\Desktop\\sample.txt");
         ObjectOutputStream outStream = new ObjectOutputStream(fout);
         outStream.writeObject(obj1);
@@ -23,7 +24,7 @@ public class Test {
         FileInputStream fin = new FileInputStream("C:\\Users\\archi\\OneDrive\\Desktop\\sample.txt");
         ObjectInputStream inStream = new ObjectInputStream(fin);
         SingletonDesignPattern myObj = (SingletonDesignPattern) inStream.readObject();
-        
+
         System.out.println(myObj.hashCode());
 
 
@@ -37,9 +38,5 @@ public class Test {
         tempObj.setAccessible(true);
         SingletonDesignPattern obj4 = tempObj.newInstance();
         System.out.println(obj4.hashCode());
-       
-
-
-
     }
 }

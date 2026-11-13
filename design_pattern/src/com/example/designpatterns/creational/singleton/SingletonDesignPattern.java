@@ -18,13 +18,13 @@ public class SingletonDesignPattern implements Serializable, Cloneable {
     // 3. Assign reference to obj variable
     private static volatile SingletonDesignPattern obj;
     
-    private SingletonDesignPattern() throws Exception {
+    private SingletonDesignPattern() {
         if (obj != null) {
             throw new IllegalStateException("Singleton instance already exists. Cannot create new instance.");
         }
     }
     
-    public static SingletonDesignPattern getInstance() throws Exception {
+    public static SingletonDesignPattern getInstance() {
         if (obj == null) {
             synchronized (SingletonDesignPattern.class) {
                 if (obj == null) {
@@ -63,4 +63,3 @@ public class SingletonDesignPattern implements Serializable, Cloneable {
 // Compilation is done for a class
 // Example for Singleton class in java -> Runtime 
 // Runtime r = Runtime.getRuntime();
-
