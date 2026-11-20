@@ -3,6 +3,12 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/java-learning.iml" filepath="$PROJECT_DIR$/.idea/java-learning.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Jshell/Jshell.iml" filepath="$PROJECT_DIR$/Jshell/Jshell.iml" />
+      <module fileurl="file://$PROJECT_DIR$/design_pattern/design_pattern.iml" filepath="$PROJECT_DIR$/design_pattern/design_pattern.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java-tips/java-tips.iml" filepath="$PROJECT_DIR$/java-tips/java-tips.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java8Features/java8Features.iml" filepath="$PROJECT_DIR$/java8Features/java8Features.iml" />
+      <module fileurl="file://$PROJECT_DIR$/multithreading/multithreading.iml" filepath="$PROJECT_DIR$/multithreading/multithreading.iml" />
+      <module fileurl="file://$PROJECT_DIR$/serialization-demo/serialization-demo.iml" filepath="$PROJECT_DIR$/serialization-demo/serialization-demo.iml" />
     </modules>
   </component>
 </project>
